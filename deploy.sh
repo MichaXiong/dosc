@@ -9,22 +9,29 @@ ARCHIVE="$(mktemp /tmp/dosc.XXXXXX.tgz)"
 COPY_DIR="$(mktemp -d /tmp/dosc-src.XXXXXX)"
 trap 'rm -rf "$COPY_DIR" "$ARCHIVE"' EXIT
 
-cp "$ROOT/index.html" "$ROOT/styles.css" "$COPY_DIR/"
-COPYFILE_DISABLE=1 tar -C "$COPY_DIR" -czf "$ARCHIVE" index.html styles.css
+# 只部署可浏览的文档站点，排除脚本与本机规则
+rsync -a --exclude '.git' --exclude '.cursor' --exclude 'deploy.sh' \
+  --exclude '_sync_topics.py' --exclude '_restyle_knowledge.py' \
+  --exclude '.DS_Store' --exclude '._*' \
+  "$ROOT/" "$COPY_DIR/"
+COPYFILE_DISABLE=1 tar -C "$COPY_DIR" -czf "$ARCHIVE" .
 
 scp -P "$PORT" -i "$KEY" -o BatchMode=yes "$ARCHIVE" "root@${HOST}:/tmp/dosc.tgz"
 ssh -p "$PORT" -i "$KEY" -o BatchMode=yes "root@${HOST}" 'bash -s' << 'REMOTE'
 set -euo pipefail
 mkdir -p /opt/dosc
+rm -rf /opt/dosc/*
 tar -xzf /tmp/dosc.tgz -C /opt/dosc
-rm -f /tmp/dosc.tgz /opt/dosc/._*
+rm -f /tmp/dosc.tgz
+find /opt/dosc -name '._*' -delete
 
 cat > /etc/caddy/Caddyfile << 'EOF'
-# 未备案域名 80/443 会被腾讯拦截；用 IP:8888 给手机/电脑浏览器访问
+# 未备案域名 80/443 会被腾讯拦截；用 IP:8888 访问文档
 :8888 {
     root * /opt/dosc
-    file_server
     encode gzip
+    try_files {path} {path}/ /index.html
+    file_server
     header {
         Cache-Control "no-cache"
     }
@@ -36,8 +43,8 @@ xiongtools.cn, www.xiongtools.cn {
     }
     handle {
         root * /opt/dosc
-        file_server
         encode gzip
+        file_server
     }
 }
 
@@ -53,6 +60,5 @@ EOF
 
 caddy validate --config /etc/caddy/Caddyfile
 systemctl reload caddy
-ss -tlnp | grep ':8888' || true
 echo "deployed: http://43.142.103.106:8888/"
 REMOTE

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4f7f5" />
+  <title>Unity 飞书笔记</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="nav" id="nav">
+      <div class="nav-head">
+        <a class="back" href="/">文档目录</a>
+        <h1>Unity 笔记</h1>
+        <input id="q" type="search" placeholder="搜索标题" enterkeyhint="search" />
+      </div>
+      <nav id="tree"></nav>
+    </aside>
+    <div class="backdrop" id="backdrop"></div>
+    <main>
+      <header class="bar">
+        <button type="button" id="menu" aria-label="打开目录">目录</button>
+        <a class="src" id="src" href="https://my.feishu.cn/wiki/LryawMPVGi3OUNkAuBvc3bGAnAd" target="_blank" rel="noopener">飞书原文</a>
+      </header>
+      <article id="doc"></article>
+    </main>
+  </div>
+  <script src="docs.js"></script>
+  <script>
+    const docs = window.FEISHU_DOCS || [];
+    const tree = document.getElementById("tree");
+    const docEl = document.getElementById("doc");
+    const nav = document.getElementById("nav");
+    const backdrop = document.getElementById("backdrop");
+    const q = document.getElementById("q");
+    const src = document.getElementById("src");
+
+    function openNav(on) {
+      nav.classList.toggle("open", on);
+      backdrop.classList.toggle("open", on);
+    }
+
+    function show(id) {
+      const item = docs.find((d) => d.id === id) || docs[0];
+      if (!item) return;
+      location.hash = item.id;
+      src.href = "https://my.feishu.cn/wiki/" + item.id;
+      const note = item.shots
+        ? `<p class="hint">这篇在飞书里还有 ${item.shots} 张截图，这里只保留了文字。</p>`
+        : "";
+      docEl.innerHTML = `<h1 class="title">${item.title}</h1>${note}${item.html}`;
+      tree.querySelectorAll("button").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.id === item.id);
+      });
+      const active = tree.querySelector("button.active");
+      if (active) active.scrollIntoView({ block: "nearest" });
+      openNav(false);
+      window.scrollTo(0, 0);
+    }
+
+    function draw(filter) {
+      const f = (filter || "").trim().toLowerCase();
+      tree.innerHTML = "";
+      docs.forEach((item) => {
+        if (f && !item.title.toLowerCase().includes(f)) return;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.dataset.id = item.id;
+        btn.textContent = item.title;
+        btn.style.paddingLeft = 12 + (item.depth - 1) * 14 + "px";
+        btn.addEventListener("click", () => show(item.id));
+        tree.appendChild(btn);
+      });
+    }
+
+    document.getElementById("menu").addEventListener("click", () => openNav(!nav.classList.contains("open")));
+    backdrop.addEventListener("click", () => openNav(false));
+    q.addEventListener("input", () => draw(q.value));
+    window.addEventListener("hashchange", () => show(location.hash.slice(1)));
+    draw("");
+    show(location.hash.slice(1) || (docs[0] && docs[0].id));
+  </script>
+</body>
+</html>

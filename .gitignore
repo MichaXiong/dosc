@@ -28,6 +28,3 @@ credentials.json
 .vs/
 
 .cursor/
-
-# Feishu export images (large binaries, served from the site copy)
-feishu_unity/img/

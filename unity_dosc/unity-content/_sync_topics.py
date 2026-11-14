@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """扫描 unity-content/P*.md，生成 topics-data.js 供 HTML 读取。
 
-用法:
-  python unity-content/_sync_topics.py
+用法（仓库根目录）:
+  python unity_dosc/unity-content/_sync_topics.py
 """
 from __future__ import annotations
 

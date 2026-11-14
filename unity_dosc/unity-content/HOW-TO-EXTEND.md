@@ -3,12 +3,13 @@
 ## 架构
 
 ```text
-unity3d-learning-outline.html   ← 大纲导航 + 阅读 + 导出
-unity-content/
-  P{x.y}.md                     ← 【正文唯一源】
-  _sync_topics.py               ← P*.md → topics-data.js
-  topics-data.js                ← 自动生成，勿手改
-  HOW-TO-EXTEND.md              ← 本说明
+unity_dosc/
+  unity3d-learning-outline.html ← 大纲导航 + 阅读 + 导出
+  unity-content/
+    P{x.y}.md                   ← 【正文唯一源】
+    _sync_topics.py             ← P*.md → topics-data.js
+    topics-data.js              ← 自动生成，勿手改
+    HOW-TO-EXTEND.md            ← 本说明
 ```
 
 ## 内容定位（重要）
@@ -59,8 +60,8 @@ unity-content/
 
 ## 补充流程
 
-1. 新建/重写 `unity-content/P{x.y}.md`
-2. `python unity-content/_sync_topics.py`
+1. 新建/重写 `unity_dosc/unity-content/P{x.y}.md`
+2. `python unity_dosc/unity-content/_sync_topics.py`
 3. 刷新 HTML
 
 若一次要改写很多节、输出可能超限：助手应先改约定 + 尽量多的章节，并明确列出**尚未改写的编号**，提示下次继续。

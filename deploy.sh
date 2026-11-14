@@ -30,7 +30,6 @@ cat > /etc/caddy/Caddyfile << 'EOF'
 :8888 {
     root * /opt/dosc
     encode gzip
-    try_files {path} {path}/ /index.html
     file_server
     header {
         Cache-Control "no-cache"
